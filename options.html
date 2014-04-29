@@ -1,0 +1,39 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>
+		Mailto: for Gmail™ options
+	</title>
+	<style type="text/css">
+		body { font-family: calibri, helvetica, arial, sans-serif; background-color: #eef }
+		#wrap { width: 400px; margin: 10% auto 0 auto; border-radius: 1em }
+		#main { padding: 0 1em 1em 1em; border: 1px solid black; border-radius: 1em; background-color: #eef}
+		#status { text-align: center; background-color: #B0C4DE; font-size: 120%; border-radius: 0 0 1em 1em; padding: 5px; height: 1.3em  }
+	</style>
+</head>
+<body>
+	
+	<div id="wrap">
+		<div id="main">
+			<img src="icon128.png" alt="MTGM" style="float: right">
+			<h1>
+				Mailto: for Gmail™
+			</h1>
+			<h2>
+				<i>Options</i>
+			</h2>
+			<form name="options" id="options" action="#">
+				<input type="checkbox" name="o_useGApps" id="o_useGApps" value="o_useGApps"> <label for="o_useGApps">Use Google Apps domain:</label> <input type="text" name="o_gaDomain" id="o_gaDomain" value="" placeholder="exampledomain.com"><br>
+				<input type="checkbox" name="o_allowBcc" id="o_allowBcc" value="o_allowBcc"> <label for="o_allowBcc">Allow BCC: fields to be filled.</label><br>
+				<input type="checkbox" name="o_useWindow" id="o_useWindow" value="o_useWindow"><label for="o_useWindow">Force opening in a new window.</label><br>
+				<br>
+				<input type="button" name="o_save" id="o_save" value="Save">
+				<input type="button" name="o_reset" value="Reset" id="o_reset">
+			</form>
+		</div>
+		<div id="status" style="visibility: hidden"></div>
+	</div>
+	<script src="options.js"></script>
+</body>
+</html>

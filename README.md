@@ -1,4 +1,6 @@
-mtgm
+Mailto: for Gmail™
 ====
 
-Mailto: for Gmail(TM) - a Chrome extension that makes mailto: links open in a Gmail compose window.
+A Chrome extension that makes mailto: links open in a Gmail compose window.
+
+Nothing more, nothing less.
