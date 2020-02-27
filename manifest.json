@@ -16,6 +16,6 @@
 		"scripts": ["background.js"],
 		"persistent": false
 	},
-   "version": "2.4",
+   "version": "2.7",
    "manifest_version": 2
 }

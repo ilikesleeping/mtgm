@@ -1,60 +1,59 @@
 // Saves options to localStorage.
 function save_options() {
-	var f = document.getElementById("options");
+	var f = document.forms["options"];
+
+	// GApps
 	var useGApps = f.o_useGApps.checked;
-	var gaDomain = f.o_gaDomain.value;
-	if (useGApps == true && gaDomain == "") {
-			updateStatus('Fill in the Google Apps domain you wish to use.');
-			return;
-	} else if (useGApps == true && gaDomain != "") {
-			localStorage["useGApps"] = useGApps;
-			localStorage["gaDomain"] = gaDomain;
-	} else if (useGApps == false) {
-			localStorage["useGApps"] = useGApps;
-			localStorage["gaDomain"] = "";
+	var gaDomain = f.o_gaDomain.value.trim();
+	if (useGApps && !gaDomain) {
+        updateStatus('Fill in the Google Apps domain you wish to use.');
+        return;
 	}
-	var allowBcc = f.o_allowBcc.checked;
-	localStorage["allowBcc"] = allowBcc;
-	var useWindow = f.o_useWindow.checked;
-	localStorage["useWindow"] = useWindow;
-	
-	updateStatus('Options Saved.');
+    localStorage["useGApps"] = useGApps;
+    localStorage["gaDomain"] = useGApps ? gaDomain : '';
+    localStorage["useAccountNo"] = f.o_useAccountNo.checked;
+    localStorage["accountNo"] = f.o_useAccountNo.checked ? (f.o_accountNo.value || '0') : '';
+    localStorage["allowBcc"] = f.o_allowBcc.checked;
+    localStorage["useWindow"] = f.o_useWindow.checked;
+
+    updateStatus('Options saved. Refresh target page to apply.');
 }
 
 // Restores select box state to saved value from localStorage.
 function restore_options() {
-	var f = document.getElementById("options");
-	var useGApps = toBool(localStorage["useGApps"]);
+	var f = document.forms["options"];
+    var useGApps = toBool(localStorage["useGApps"]);
 	f.o_useGApps.checked = useGApps;
-	if (useGApps) {
-			var gaDomain = localStorage["gaDomain"];
-			f.o_gaDomain.value = gaDomain;
-	}
-	f.o_allowBcc.checked = toBool(localStorage["allowBcc"]);
+    f.o_gaDomain.value = useGApps ? localStorage["gaDomain"] : '';
+    var useAccountNo = toBool(localStorage["useAccountNo"]);
+    f.o_useAccountNo.checked = useAccountNo;
+    f.o_accountNo.value = useAccountNo ? localStorage["accountNo"] : '';
+    f.o_allowBcc.checked = toBool(localStorage["allowBcc"]);
 	f.o_useWindow.checked = toBool(localStorage["useWindow"]);
 	
 }
 
 // Update status to let user know options were saved.
 function updateStatus(s) {
-	var status = document.getElementById("status");
-	var wrap = document.getElementById("wrap");
-	status.innerHTML = s;
-	status.style.visibility = "visible";
-	wrap.style.backgroundColor = "#B0C4DE";
-	setTimeout(function() {
-		status.innerHTML = "";
-		status.style.visibility = "hidden";
-		wrap.style.backgroundColor = "#eef";
-	}, 2000);
+    var status = document.getElementById("status");
+    var wrap = document.getElementById("wrap");
+    status.innerHTML = s;
+    status.className = 'open';
+    setTimeout(function() {
+        status.innerHTML = "";
+        status.className = '';
+    }, 6000);
 }
 
 // Convert string values from localStorage to boolean
 function toBool(s) {
-	if (s === "false")	return false;
-	else 				return s;
+    return s !== 'false' && Boolean(s);
 }
 
 window.addEventListener('load', restore_options);
-document.getElementById('o_save').addEventListener('click', save_options);
+document.getElementById('options').addEventListener('submit', save_options);
 document.getElementById('o_reset').addEventListener('click', restore_options);
+
+if (document.location.search === '?first=1') {
+    document.getElementById('installed').className = 'show';
+}

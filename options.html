@@ -1,39 +1,70 @@
 ﻿<!DOCTYPE HTML>
 <html lang="en">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-	<title>
-		Mailto: for Gmail™ options
-	</title>
-	<style type="text/css">
-		body { font-family: calibri, helvetica, arial, sans-serif; background-color: #eef }
-		#wrap { width: 400px; margin: 10% auto 0 auto; border-radius: 1em }
-		#main { padding: 0 1em 1em 1em; border: 1px solid black; border-radius: 1em; background-color: #eef}
-		#status { text-align: center; background-color: #B0C4DE; font-size: 120%; border-radius: 0 0 1em 1em; padding: 5px; height: 1.3em  }
-	</style>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>
+        Mailto: for Gmail™ options
+    </title>
+    <link rel="stylesheet" href="options.css" />
 </head>
 <body>
-	
-	<div id="wrap">
-		<div id="main">
-			<img src="icon128.png" alt="MTGM" style="float: right">
-			<h1>
-				Mailto: for Gmail™
-			</h1>
-			<h2>
-				<i>Options</i>
-			</h2>
-			<form name="options" id="options" action="#">
-				<input type="checkbox" name="o_useGApps" id="o_useGApps" value="o_useGApps"> <label for="o_useGApps">Use Google Apps domain:</label> <input type="text" name="o_gaDomain" id="o_gaDomain" value="" placeholder="exampledomain.com"><br>
-				<input type="checkbox" name="o_allowBcc" id="o_allowBcc" value="o_allowBcc"> <label for="o_allowBcc">Allow BCC: fields to be filled.</label><br>
-				<input type="checkbox" name="o_useWindow" id="o_useWindow" value="o_useWindow"><label for="o_useWindow">Force opening in a new window.</label><br>
-				<br>
-				<input type="button" name="o_save" id="o_save" value="Save">
-				<input type="button" name="o_reset" value="Reset" id="o_reset">
-			</form>
-		</div>
-		<div id="status" style="visibility: hidden"></div>
-	</div>
-	<script src="options.js"></script>
+
+<div id="wrap">
+    <div id="main">
+        <div id="imgWrap">
+            <img src="icon128.png" alt="MTGM">
+        </div>
+        <h1>
+            Mailto: for Gmail™
+        </h1>
+        <div id="installed">
+            <h2>
+                <span id="refresh"><img src="refresh.png" alt="↻"/></span>
+                Successfully installed! <br> Refresh pages to take effect.
+            </h2>
+            <p>
+                Please note: This extension will take effect on tabs that are opened from now on.
+                <strong>You'll have to refresh any currently open tabs before the extension will work on them</strong>.
+            </p>
+        </div>
+        <h2>
+            <i>Options</i>
+        </h2>
+
+        <form id="options" action="#">
+            <label>
+                <input type="checkbox" id="o_useGApps">
+                <span>Use Google Apps domain:</span>
+            </label>
+            <input type="text" id="o_gaDomain" class="textInput" value="" placeholder="exampledomain.com">
+            <br>
+
+            <label>
+                <input type="checkbox" id="o_useAccountNo">
+                <span>Use Gmail™ account number:</span>
+            </label>
+            <input type="number" class="textInput" id="o_accountNo" value="" placeholder="0" pattern="/d*" inputmode="numeric" title="Enter digits only">
+            <span class="info" title="Enable this to use a specific account to send from. When on the inbox page for the account you want to use, the account number is shown in the url as /mail/u/X/, where X is the account number">ℹ️</span>
+            <br>
+
+            <label>
+                <input type="checkbox" id="o_allowBcc">
+                <span>Allow BCC: field to be filled</span>
+            </label>
+            <br>
+
+            <label>
+                <input type="checkbox" id="o_useWindow">
+                <span>Force opening in a new window</span>
+            </label>
+            <br>
+            <br>
+            <input class="butt save" type="submit" id="o_save" value="Save">
+            <input class="butt" type="button" id="o_reset" value="Reset">
+        </form>
+    </div>
+    <div id="status"></div>
+</div>
+<script src="options.js"></script>
 </body>
 </html>
