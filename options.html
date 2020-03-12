@@ -32,33 +32,46 @@
         </h2>
 
         <form id="options" action="#">
-            <label>
-                <input type="checkbox" id="o_useGApps">
-                <span>Use Google Apps domain:</span>
-            </label>
-            <input type="text" id="o_gaDomain" class="textInput" value="" placeholder="exampledomain.com">
-            <br>
+            <p>
+                <label>
+                    <input type="checkbox" id="o_useGApps">
+                    <span>Use Google Apps domain:</span>
+                </label>
+                <input type="text" id="o_gaDomain" class="textInput" value="" placeholder="exampledomain.com">
+            </p>
 
-            <label>
-                <input type="checkbox" id="o_useAccountNo">
-                <span>Use Gmail™ account number:</span>
-            </label>
-            <input type="number" class="textInput" id="o_accountNo" value="" placeholder="0" pattern="/d*" inputmode="numeric" title="Enter digits only">
-            <span class="info" title="Enable this to use a specific account to send from. When on the inbox page for the account you want to use, the account number is shown in the url as /mail/u/X/, where X is the account number">ℹ️</span>
-            <br>
+            <p>
+                <label>
+                    <input type="checkbox" id="o_useAccountNo">
+                    <span>Use Gmail™ account number:</span>
+                </label>
+                <input type="number" class="textInput" id="o_accountNo" value="" placeholder="0" pattern="/d*" inputmode="numeric" title="Enter digits only">
+                <span class="info" tabindex="0">ℹ️
+                <span class="infoText">
+                    <span>
+                        Enable this option to use a specific account to send from.
+                        <br><br>
+                        When on the inbox page for the account you want to use, the account number is shown in the url
+                        as <code>/mail/u/X/</code>, where X is the account number.
+                    </span>
+                </span>
+            </span>
+            </p>
 
-            <label>
-                <input type="checkbox" id="o_allowBcc">
-                <span>Allow BCC: field to be filled</span>
-            </label>
-            <br>
+            <p>
+                <label>
+                    <input type="checkbox" id="o_allowBcc">
+                    <span>Allow BCC: field to be filled</span>
+                </label>
+            </p>
 
-            <label>
-                <input type="checkbox" id="o_useWindow">
-                <span>Force opening in a new window</span>
-            </label>
-            <br>
-            <br>
+            <p>
+                <label>
+                    <input type="checkbox" id="o_useWindow">
+                    <span>Force opening in a new window</span>
+                </label>
+            </p>
+
             <input class="butt save" type="submit" id="o_save" value="Save">
             <input class="butt" type="button" id="o_reset" value="Reset">
         </form>
