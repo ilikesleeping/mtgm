@@ -73,22 +73,29 @@ chrome.extension.sendMessage({storage: "getSettings"}, function(r) {
 });
 
 // Called when an element is added after page load
-function inserted(e) {
-    try {
-        if (e.target.nodeName === "A" && e.target.href.match(/^mailto:/i)) {
-            setLink(e.target);
-        } else if (e.target.getElementsByTagName) {
-            var nodes = e.target.getElementsByTagName('A');
-            for (var z = 0; z < nodes.length; z++){
-                if (nodes[z].href.match(/^mailto:/i)) {
-                    setLink(nodes[z]);
+function inserted(mutationsList, observer) {
+    for (let mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+            for (let node of mutation.addedNodes) {
+                try {
+                    if (node.nodeName === 'A' && node.href.match(/^mailto:/i)) {
+                        setLink(node);
+                    } else if (node.getElementsByTagName) {
+                        let nodes = node.getElementsByTagName('A');
+                        for (let z = 0; z < nodes.length; z++) {
+                            if (nodes[z].href.match(/^mailto:/i)) {
+                                setLink(nodes[z]);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Fail silently
                 }
             }
         }
-    } catch (e) {
-        //Fail silently
     }
 }
 
 // Watch for inserted mailto links
-document.addEventListener('DOMNodeInserted', inserted, false );
+const observer = new MutationObserver(inserted);
+observer.observe(document.body, { childList: true, subtree: true });
