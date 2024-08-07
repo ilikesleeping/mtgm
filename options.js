@@ -1,58 +1,80 @@
-// Saves options to localStorage.
-function save_options() {
-	var f = document.forms["options"];
-
-	// GApps
-	var useGApps = f.o_useGApps.checked;
-	var gaDomain = f.o_gaDomain.value.trim();
-	if (useGApps && !gaDomain) {
-        updateStatus('Fill in the Google Apps domain you wish to use.');
-        return;
-	}
-    localStorage["useGApps"] = useGApps;
-    localStorage["gaDomain"] = useGApps ? gaDomain : '';
-    localStorage["useAccountNo"] = f.o_useAccountNo.checked;
-    localStorage["accountNo"] = f.o_useAccountNo.checked ? (f.o_accountNo.value || '0') : '';
-    localStorage["allowBcc"] = f.o_allowBcc.checked;
-    localStorage["useWindow"] = f.o_useWindow.checked;
-
-    updateStatus('Options saved. Refresh target page to apply.');
+const defaultOptions = {
+    hasMigratedFromV2: false,
+    useGApps: false,
+    gaDomain: '',
+    useAccountNo: false,
+    accountNo: 0,
+    allowBcc: false,
+    useWindow: false,
 }
 
-// Restores select box state to saved value from localStorage.
-function restore_options() {
-	var f = document.forms["options"];
-    var useGApps = toBool(localStorage["useGApps"]);
-	f.o_useGApps.checked = useGApps;
-    f.o_gaDomain.value = useGApps ? localStorage["gaDomain"] : '';
-    var useAccountNo = toBool(localStorage["useAccountNo"]);
-    f.o_useAccountNo.checked = useAccountNo;
-    f.o_accountNo.value = useAccountNo ? localStorage["accountNo"] : '';
-    f.o_allowBcc.checked = toBool(localStorage["allowBcc"]);
-	f.o_useWindow.checked = toBool(localStorage["useWindow"]);
+/**
+ * Saves options to localStorage.
+ */
+async function saveOptions(ev) {
+    ev.preventDefault();
+
+    const f = document.forms["options"];
+
+    // Validation
+    const useGApps = f.o_useGApps.checked;
+    const gaDomain = f.o_gaDomain.value.trim();
+    if (useGApps && !gaDomain) {
+        updateStatus('Fill in the Google Apps domain you wish to use.');
+        return;
+    }
+
+    await chrome.storage.local.set({
+        useGApps,
+        gaDomain,
+        useAccountNo: f.o_useAccountNo.checked,
+        accountNo: f.o_accountNo.value ?? 0,
+        allowBcc: f.o_allowBcc.checked,
+        // useWindow: f.o_useWindow.checked,
+    })
+
+    updateStatus('Options saved.');
+}
+
+
+/**
+ * Restores select box state to saved value from localStorage.
+ */
+async function restoreOptions() {
+    const f = document.forms["options"];
+    const options = await chrome.storage.local.get(defaultOptions);
+
+    f.o_useGApps.checked = options.useGApps;
+    f.o_gaDomain.value = options.gaDomain;
+    f.o_useAccountNo.checked = options.useAccountNo;
+    f.o_accountNo.value = options.accountNo;
+    f.o_allowBcc.checked = options.allowBcc;
+    // f.o_useWindow.checked = options.useWindow;
 	
 }
 
-// Update status to let user know options were saved.
-function updateStatus(s) {
-    var status = document.getElementById("status");
-    var wrap = document.getElementById("wrap");
-    status.innerHTML = s;
+/**
+ * Update status to let user know options were saved.
+ */
+function updateStatus(message) {
+    const status = document.getElementById("status");
+    status.innerText = message;
     status.className = 'open';
     setTimeout(function() {
-        status.innerHTML = "";
         status.className = '';
     }, 6000);
 }
 
-// Convert string values from localStorage to boolean
+/**
+ * Convert string values from localStorage to boolean
+ */
 function toBool(s) {
     return s !== 'false' && Boolean(s);
 }
 
-window.addEventListener('load', restore_options);
-document.getElementById('options').addEventListener('submit', save_options);
-document.getElementById('o_reset').addEventListener('click', restore_options);
+window.addEventListener('load', restoreOptions);
+document.getElementById('options').addEventListener('submit', saveOptions);
+document.getElementById('o_reset').addEventListener('click', restoreOptions);
 
 if (document.location.search === '?first=1') {
     document.getElementById('installed').className = 'show';

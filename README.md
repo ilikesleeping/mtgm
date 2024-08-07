@@ -1,4 +1,4 @@
-Mailto: for Gmail™
+Mailto: for Gmailâ„¢
 ====
 
 A Chrome extension that makes mailto: links open in a Gmail compose window.

@@ -1,100 +1,139 @@
-﻿// Mailto: for Gmail™   -  By Chris (i.like.sleeping@gmail.com)
-// In theory, should comply with RFC2368 - if you find any bugs, let me know :)
-// With bugfix thanks to Leonard Ehrenfried and Artur Marnik :)
+﻿/**
+ * Mailto: for Gmail™   -  By Chris (chris@ilikesleeping.co.uk)
+ * In theory, should comply with RFC2368 - if you find any bugs, let me know :)
+ * With bugfix thanks to Leonard Ehrenfried and Artur Marnik :)
+ */
 
-// Get url parameters.
-function getParam(u,p) {
-    var r = new RegExp(p + "=[^&]*","i");
-    var m = u.match(r);
-    return (m) ? m[0].replace(p + '=','') : '';
-}
+const defaultOptions = {
+    useGApps: false,
+    gaDomain: '',
+    useAccountNo: false,
+    accountNo: 0,
+    allowBcc: false,
+    useWindow: false,
+};
 
-// Convert string values from localStorage to boolean
-function toBool(s) {
-    return s !== 'false' && Boolean(s);
-}
-
-// Find mailto links
+/**
+ * Find mailto links
+ */
 function findLinks() {
-    var links = document.links;
-    var l = links.length;
-    for (var z = 0; z < l; z++) {
-        if ((/^mailto:/i).test(links[z].href)) {
-            setLink(links[z]);
+    for (const link of document.links) {
+        if ((/^mailto:/i).test(link.href)) {
+            setLink(link);
         }
     }
 }
 
-// Set link to go to Gmail when clicked
-function setLink(e) {
-    var x = e.href;
-    x = x.replace(/'/ig,'%27').replace(/\+/g,'%2B');
-    var to = x.match(/mailto:[^?]*/i)[0].replace(/mailto:/i,'');
-    var to2 = getParam(x,"to");
-    to = (to2) ? to2 + '; ' + to : to;
-    var bcc = (allowBcc === true) ? getParam(x,"bcc") : '';
-    x = x.replace(/(bcc=)/ig,'');
-    var cc = getParam(x,"cc");
-    var su = getParam(x,"subject");
-    var body = getParam(x,"body");
+/**
+ * Remove all added listeners (for when ext is updated)
+ */
+function removeListeners() {
+    for (const link of document.links) {
+        if ((/^mailto:/i).test(link.href)) {
+            link.removeEventListener('click', mailtoClickListener);
+        }
+    }
+}
 
-    e.addEventListener('click', function(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        return !launchCompose(to, cc, bcc, su, body);
+function setLink(linkEl) {
+    linkEl.addEventListener('click', mailtoClickListener);
+}
+
+/**
+ * Listener for mailto link clicked
+ */
+function mailtoClickListener(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    launchCompose(ev.currentTarget);
+    return false;
+}
+
+async function launchCompose(linkEl) {
+    const linkUrl = new URL(linkEl.href);
+    const parts = {
+        to: linkUrl.pathname,
+        cc: '',
+        bcc: '',
+        subject: '',
+        body: '',
+    };
+    linkUrl.searchParams.forEach((value, key) => {
+        const keyLower = key.toLowerCase();
+        if (parts[keyLower]) {
+            parts[keyLower] += ';';
+            parts[keyLower] += value;
+        }
+        else {
+            parts[keyLower] = value;
+        }
     });
+
+    const opts = await new Promise(resolve => {
+        chrome.storage.local.get(defaultOptions, resolve)
+    }).catch(err => {
+        // This will fail if extension has been updated or otherwise gone out of scope. Log other errors
+        return null;
+    })
+
+    if (!opts) {
+        removeListeners();
+        return;
+    }
+
+    if (!opts.allowBcc) {
+        parts.bcc = '';
+    }
+
+    if (!opts) {
+        // Extension has gone away.
+        linkEl.removeEventListener('click', mailtoClickListener);
+        return;
+    }
+
+    const gLinkSuffix = (opts.useAccountNo && opts.accountNo)
+        ? `u/${opts.accountNo}/`
+        : '';
+    const gLink = (opts.useGApps && opts.gaDomain)
+        ? `https://mail.google.com/a/${opts.gaDomain}/mail/${gLinkSuffix}`
+        : `https://mail.google.com/mail/${gLinkSuffix}`;
+    const emailLink = `${gLink}?view=cm&tf=1&to=${parts.to}&cc=${parts.cc}&bcc=${parts.bcc}&su=${parts.subject}&body=${parts.body}`;
+    // const windowFeatures = opts.useWindow
+    //     ? 'noopener,noreferrer,location,menubar,resizable,width=800,height=600'
+    //     : 'noopener,noreferrer';
+    const windowFeatures = 'noopener,noreferrer';
+    return window.open(emailLink, '_blank', windowFeatures);
 }
 
-function launchCompose(to, cc, bcc, su, body) {
-    var emaillink = gLink + '?view=cm&tf=1&to=' + to + "&cc=" + cc + "&bcc=" + bcc + "&su=" + su + "&body=" + body;
-    if (useWindow){
-        return window.open(emaillink,'_blank','location=yes,menubar=yes,resizable=yes,width=800,height=600');
-    } else {
-        return window.open(emaillink, '_blank');
-    }
-}
-
-
-// Get settings
-var useGApps, gaDomain, allowBcc, useWindow, gLink;
-chrome.extension.sendMessage({storage: "getSettings"}, function(r) {
-    useGApps = toBool(r.storage.useGApps);
-    if (useGApps && r.storage.gaDomain) {
-        gLink = 'https://mail.google.com/a/' + r.storage.gaDomain + '/mail/';
-    } else {
-        gLink = 'https://mail.google.com/mail/';
-    }
-    if (toBool(r.storage.useAccountNo)) {
-        gLink += 'u/' + r.storage.accountNo + '/';
-    }
-    allowBcc = toBool(r.storage.allowBcc);
-    useWindow = toBool(r.storage.useWindow);
-    findLinks();
-});
-
-// Called when an element is added after page load
-function inserted(mutationsList, observer) {
-    for (let mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-            for (let node of mutation.addedNodes) {
-                try {
-                    if (node.nodeName === 'A' && node.href.match(/^mailto:/i)) {
-                        setLink(node);
-                    } else if (node.getElementsByTagName) {
-                        let nodes = node.getElementsByTagName('A');
-                        for (let z = 0; z < nodes.length; z++) {
-                            if (nodes[z].href.match(/^mailto:/i)) {
-                                setLink(nodes[z]);
-                            }
+/**
+ * Called when an element is added after page load
+ */
+function inserted(mutationsList) {
+    for (const mutation of mutationsList) {
+        if (mutation.type !== 'childList') {
+            continue;
+        }
+        for (const node of mutation.addedNodes) {
+            try {
+                if (node.nodeName === 'A' && node.href.match(/^mailto:/i)) {
+                    setLink(node);
+                } else if (node.getElementsByTagName) {
+                    const childNodes = node.getElementsByTagName('A');
+                    for (const childNode of childNodes) {
+                        if (childNodes[childNode].href.match(/^mailto:/i)) {
+                            setLink(childNodes[childNode]);
                         }
                     }
-                } catch (e) {
-                    // Fail silently
                 }
+            } catch (e) {
+                // Fail silently
             }
         }
     }
 }
+
+// Run on initial set of links
+findLinks();
 
 // Watch for inserted mailto links
 const observer = new MutationObserver(inserted);
