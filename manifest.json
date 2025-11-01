@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mailto: for Gmail™",
   "description": "Makes mailto: links open a Gmail™ compose window.\nNothing more, nothing less.",
-  "version": "3.0",
+  "version": "3.1",
   "icons": {
     "128": "icon128.png",
     "16": "icon16.png",

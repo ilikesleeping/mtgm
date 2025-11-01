@@ -1,23 +1,13 @@
 chrome.runtime.onInstalled.addListener(async (details) => {
-	console.log('onInstalled', details.reason);
-	switch (details.reason) {
-		case "install": {
-			// First run
-			await chrome.runtime.openOptionsPage();
-			await addScriptToAllTabs();
-			break;
-		}
-		case "update": {
-			const options = await chrome.storage.local.get({
-				hasMigratedFromV2: false,
-			});
-			if (!options.hasMigratedFromV2) {
-				await migrateV2Options();
-			}
-			await addScriptToAllTabs();
-			break;
+	if (details.reason === 'update') {
+		const options = await chrome.storage.local.get({
+			hasMigratedFromV2: false,
+		});
+		if (!options.hasMigratedFromV2) {
+			await migrateV2Options();
 		}
 	}
+	await addScriptToAllTabs();
 });
 
 /**
